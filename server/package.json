@@ -1,7 +1,7 @@
 {
-  "name": "spotify-clone",
+  "name": "MinMusic",
   "version": "1.0.0",
-  "description": "Spotify",
+  "description": "MinMusic",
   "main": "server.js",
   "scripts": {
     "dev": "SET NODE_ENV=development & nodemon server.js",
@@ -10,7 +10,7 @@
   "keywords": [
     "mern"
   ],
-  "author": "Maqsud Tolipov",
+  "author": "MinDGS",
   "license": "MIT",
   "dependencies": {
     "bcryptjs": "^2.4.3",

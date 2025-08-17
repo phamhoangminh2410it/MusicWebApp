@@ -18,7 +18,7 @@ const AI = () => {
     const [messages, setMessages] = useState([
         {
             message: "Xin chào! \nMình là trợ lý AI từ MinMusic.",
-            sender: "ChatGPT",
+            sender: "Gemini",
         },
     ]);
 
@@ -42,61 +42,61 @@ const AI = () => {
     };
 
     async function processMessageToChatGPT(chatMessages) {
-        // chat Messages { sender :"user" or "ChatGPT", message : "the message content here"}
-        // api Messages { role: "user" or "assistant" content :"the message content here"}
+        const latestMessage = chatMessages[chatMessages.length - 1];
+        
+        // Context about the songs we know
+        const context = `Thông tin về bài hát:
+        Sơn Tùng MTP: Chạy Ngay Đi, Chúng ta của tương lai, Hãy Trao cho anh, Muộn rồi sao còn
+        Wowy: Lên thiên đàng`;
 
-        let apiMessages = chatMessages.map((messageObject) => {
-            let role = '';
-            if (messageObject.sender === "ChatGPT") {
-                role = "assistant";
+        try {
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-goog-api-key": "AIzaSyBUz9Ykz1TOuWj93isYNDawFS5qDdN4iyw"
+                },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [{
+                            text: `${context}\n\nVới vai trò là trợ lý AI của MinMusic, hãy trả lời câu hỏi sau:\n${latestMessage.message}`
+                        }]
+                    }]
+                })
+            });
+
+            const data = await response.json();
+            console.log("Gemini response:", data); // Debug log
+
+            if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0].text) {
+                setMessages([
+                    ...chatMessages,
+                    {
+                        message: data.candidates[0].content.parts[0].text,
+                        sender: "Gemini"
+                    }
+                ]);
             } else {
-                role = 'user';
+                console.error("Unexpected response structure:", data);
+                setMessages([
+                    ...chatMessages,
+                    {
+                        message: "Xin lỗi, có lỗi xử lý phản hồi từ AI. Vui lòng thử lại.",
+                        sender: "Gemini"
+                    }
+                ]);
             }
-            return { role: role, content: messageObject.message };
-        });
-
-        // role : "user" -> a message from the user , "assistent" -> a response from chatGPT
-        // system -> generally one initial message defining how we want chatGPT to talk
-
-        const systemMessage = {
-            role: "system",
-            // content: "Explain all concepts like I am 10 years old."
-            content: "Bạn là một chatbot tài năng bạn có thể trả lời hết mọi câu hỏi của tôi bằng những thông tin mà tôi đã cung cấp cho bạn và trước khi trả lời câu hỏi sẽ kiểm tra lại thật đầy đủ thông tin mà tôi đã cung cấp cho bạn"
-             + " và giờ tôi có 1 số thông tin về tên bài hát của sơn tùng: Chạy Ngay Đi,"
-             + " Chúng ta của sau này, Hãy Trao cho anh, Muộn rồi sao còn. Và bài hát của wowy: Lên thiên đàng. Bạn chỉ cần trả lời khi có ai hỏi bạn về những" 
-             + " thông tin này bạn hãy trả lời còn lại hãy viết là tôi không có thông tin"
-            // content:"Explain like a pirate."
-        }
-
-        const apiRequestBody = {
-            "model": "gpt-3.5-turbo-16k",
-            "messages": [
-                systemMessage,
-                ...apiMessages
-            ]
-        }
-
-        await fetch("https://api.openai.com/v1/chat/completions", {
-            method: "POST",
-            headers: {
-                "Authorization": "Bearer " + "sk-proj-TmZyYudWFxmtm5HknHC4T3BlbkFJ8aGbrnoAfGeXUKaVriNE",
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(apiRequestBody)
-        }
-        ).then((data) => {
-            return data.json();
-        }).then((data) => {
-            console.log(data);
-            console.log(data.choices[0].message.content);
+        } catch (error) {
+            console.error("Error details:", error);
             setMessages([
-                ...chatMessages, {
-                    message: data.choices[0].message.content,
-                    sender: "ChatGPT"
+                ...chatMessages,
+                {
+                    message: "Xin lỗi, đã có lỗi xảy ra khi xử lý yêu cầu của bạn. Vui lòng thử lại sau.",
+                    sender: "Gemini"
                 }
             ]);
-            setThinking(false);
-        });
+        }
+        setThinking(false);
 
     }
 

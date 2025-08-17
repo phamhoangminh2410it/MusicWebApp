@@ -1,7 +1,7 @@
 //import React from 'react'
 import { useState } from "react";
 import "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css";
-//import "./AI.scss"
+import "./AI.scss"
 
 import {
   MainContainer,
@@ -14,12 +14,13 @@ import {
 
 const AI = () => {
     const [thinking, setThinking] = useState(false);
+    const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([
         {
-            message: "Hello, What do you want to search?",
+            message: "Xin chào! \nMình là trợ lý AI từ MinMusic.",
             sender: "ChatGPT",
         },
-    ]); // []
+    ]);
 
     const handleSend = async (message) => {
         const newMessage = {
@@ -100,11 +101,21 @@ const AI = () => {
     }
 
     return (
-        <div className="App">
-            <div style={{ position: "relative", height: "300px", width: "300px", 
-            marginLeft: "650px", marginTop: "500px"
-                
-            }}>
+        <>
+            <div className="chat-bubble" onClick={() => setIsOpen(!isOpen)}>
+                <img src="/src/img/logo.svg" alt="Chat" />
+            </div>
+            
+            <div className={`chat-container ${!isOpen ? 'hidden' : ''}`}>
+                <div className="chat-header">
+                    <div className="avatar">
+                        🤖
+                    </div>
+                    <div className="header-text">
+                        <h2>Chatbot MinMusic</h2>
+                        <p>Trợ lý AI</p>
+                    </div>
+                </div>
                 <MainContainer>
                     <ChatContainer>
                         <MessageList
@@ -119,13 +130,13 @@ const AI = () => {
                             })}
                         </MessageList>
                         <MessageInput
-                            placeholder="Type messages here"
+                            placeholder="Nói chuyện với Chatbot MinMusic"
                             onSend={handleSend}
                         />
                     </ChatContainer>
                 </MainContainer>
             </div>
-        </div>
+        </>
     )
 }
 
